@@ -9,7 +9,7 @@ Juego multijugador de aula sobre permutación circular. El docente proyecta la p
 3. Elige el número de rondas, la dificultad y cómo se ven los círculos:
    - **Colores**: un anillo dividido en sectores de colores.
    - **Personas**: una mesa redonda con asientos e iniciales.
-4. Opcional: activa **Preguntas de teoría** para que unas pocas rondas (1, 2 o 3 según el total) sean afirmaciones de verdadero o falso sobre permutación circular.
+4. Opcional: activa **Pregunta de teoría** para que una ronda, a mitad de la partida, sea una afirmación de verdadero o falso sobre permutación circular.
 5. Pulsa **Empezar**. Cada ronda termina cuando todos responden o se acaba el tiempo; después el círculo 2 gira hasta alinearse con el 1 y se ve si coinciden.
 
 Puntuación: 500 puntos por acertar, hasta 500 más por rapidez y 100 extra desde el tercer acierto seguido.

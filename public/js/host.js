@@ -102,7 +102,7 @@
             </div>
           </div>
           <div class="ajuste">
-            <h2>Preguntas de teoría (unas pocas, de verdadero o falso)</h2>
+            <h2>Pregunta de teoría</h2>
             <div class="segmentos">${segmentos('theory')}</div>
           </div>
           <h2 id="cuenta"></h2>

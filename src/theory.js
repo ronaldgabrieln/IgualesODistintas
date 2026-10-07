@@ -58,12 +58,12 @@ const QUESTIONS = [
   },
 ];
 
-// Pocas: una pregunta de teoría por cada cinco rondas.
+// Como máximo una pregunta de teoría por partida.
 function theoryCount(rounds) {
-  return Math.min(QUESTIONS.length, Math.round(rounds / 5));
+  return rounds > 1 ? 1 : 0;
 }
 
-// Reparte las preguntas a lo largo de la partida, nunca en la primera ronda.
+// Coloca la pregunta a mitad de la partida, nunca en la primera ronda.
 // Devuelve un Map de índice de ronda a la ronda de teoría que la reemplaza.
 function planTheory(rounds, rng = Math.random) {
   const count = theoryCount(rounds);

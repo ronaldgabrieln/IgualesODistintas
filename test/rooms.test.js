@@ -72,7 +72,7 @@ test('la partida termina tras el número de rondas configurado y vuelve al lobby
   assert.equal(room.players.get(ana).score, 0);
 });
 
-test('con teoría activada, unas pocas rondas son de verdadero o falso', (t) => {
+test('con teoría activada, una sola ronda es de verdadero o falso', (t) => {
   const room = setup(t);
   const ana = room.join('Ana', null, 's1').playerId;
   room.setConfig({ rounds: 10, theory: true });
@@ -92,7 +92,7 @@ test('con teoría activada, unas pocas rondas son de verdadero o falso', (t) => 
     if (view.theory) assert.ok(room.playerView(ana).result.explain);
     room.next();
   }
-  assert.equal(textos.size, 2);
+  assert.equal(textos.size, 1);
   assert.equal(room.phase, 'final');
   assert.ok(room.players.get(ana).score >= 10 * 500);
 });
