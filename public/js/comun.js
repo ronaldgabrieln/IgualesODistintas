@@ -25,6 +25,11 @@ const Util = {
     }
   },
 
+  // Textos de las dos respuestas: [verdadera, falsa].
+  opciones(teoria) {
+    return teoria ? ['Verdadero', 'Falso'] : ['Iguales', 'Distintas'];
+  },
+
   explicacion(same, kind) {
     if (same) return 'El círculo 2 es el círculo 1 girado.';
     if (kind === 'reflejo') return 'Es el reflejo: mismo orden, pero en sentido contrario.';

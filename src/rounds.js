@@ -75,4 +75,4 @@ function generateRound(levelName, rng = Math.random) {
   };
 }
 
-module.exports = { LEVELS, DIFFICULTIES, PALETTE_SIZE, levelForRound, generateRound };
+module.exports = { LEVELS, DIFFICULTIES, PALETTE_SIZE, shuffle, levelForRound, generateRound };

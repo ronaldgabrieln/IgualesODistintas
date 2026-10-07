@@ -124,12 +124,13 @@
         <span id="puntos"></span>
       </header>
       <div class="tiempo"><div id="tiempo-barra"></div></div>
+      ${s.round.theory ? `<p class="enunciado tarjeta">${esc(s.round.text)}</p>` : `
       <div class="duelo">
         <figure><div id="c1"></div><figcaption>1</figcaption></figure>
         <figure><div id="c2"></div><figcaption>2</figcaption></figure>
-      </div>
+      </div>`}
       <div id="pie"></div>`;
-    circulos = [
+    circulos = s.round.theory ? null : [
       Circulo.crear(document.getElementById('c1'), s.round.a, { modo: s.mode }),
       Circulo.crear(document.getElementById('c2'), s.round.b, {
         modo: s.mode,
@@ -148,7 +149,7 @@
     } else {
       reloj.detener();
       document.getElementById('tiempo-barra').style.width = '0%';
-      Circulo.revelar(circulos[0], circulos[1], s.round.a, s.round.b);
+      if (circulos) Circulo.revelar(circulos[0], circulos[1], s.round.a, s.round.b);
     }
     pintarPie();
   }
@@ -157,6 +158,8 @@
     const s = estado;
     const pie = document.getElementById('pie');
     if (!pie) return;
+    const teoria = s.round.theory;
+    const [si, no] = Util.opciones(teoria);
 
     if (s.phase === 'question') {
       const elegido = s.answer;
@@ -164,11 +167,11 @@
       pie.innerHTML = `
         <div class="respuestas">
           <button class="respuesta respuesta--iguales${clase(true)}" data-accion="responder"
-                  data-valor="1" ${elegido !== null ? 'disabled' : ''}><span>=</span>Iguales</button>
+                  data-valor="1" ${elegido !== null ? 'disabled' : ''}><span>${teoria ? '✓' : '='}</span>${si}</button>
           <button class="respuesta respuesta--distintas${clase(false)}" data-accion="responder"
-                  data-valor="0" ${elegido !== null ? 'disabled' : ''}><span>≠</span>Distintas</button>
+                  data-valor="0" ${elegido !== null ? 'disabled' : ''}><span>${teoria ? '✗' : '≠'}</span>${no}</button>
         </div>
-        <p class="tenue centro">${elegido === null ? '¿Son el mismo arreglo girado?' : 'Respuesta enviada. Mira la pantalla.'}</p>`;
+        <p class="tenue centro">${elegido !== null ? 'Respuesta enviada. Mira la pantalla.' : teoria ? '¿La afirmación es verdadera?' : '¿Son el mismo arreglo girado?'}</p>`;
       return;
     }
 
@@ -182,7 +185,7 @@
       <section class="resultado ${r.correct ? 'resultado--bien' : 'resultado--mal'}">
         <h2>${titulo}</h2>
         <p class="ganado">+${r.gained}</p>
-        <p>Eran <strong>${r.same ? 'iguales' : 'distintas'}</strong>. ${esc(Util.explicacion(r.same, r.kind))}</p>
+        <p>${teoria ? 'Era' : 'Eran'} <strong>${teoria ? (r.same ? 'verdadero' : 'falso') : (r.same ? 'iguales' : 'distintas')}</strong>. ${esc(r.explain || Util.explicacion(r.same, r.kind))}</p>
         ${r.streak >= 3 ? `<p class="racha">Racha de ${r.streak}: +100</p>` : ''}
         <p class="tenue">Vas en el puesto ${s.rank} de ${s.playerCount}</p>
       </section>`;

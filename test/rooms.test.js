@@ -53,7 +53,9 @@ test('la partida termina tras el número de rondas configurado y vuelve al lobby
   const room = setup(t);
   const ana = room.join('Ana', null, 's1').playerId;
   room.setConfig({ rounds: 5, mode: 'personas', difficulty: 'nope' });
-  assert.deepEqual(room.config, { rounds: 5, difficulty: 'progresiva', mode: 'personas' });
+  assert.deepEqual(room.config, {
+    rounds: 5, difficulty: 'progresiva', mode: 'personas', theory: false,
+  });
 
   room.start();
   for (let i = 0; i < 5; i++) {
@@ -68,4 +70,29 @@ test('la partida termina tras el número de rondas configurado y vuelve al lobby
   room.backToLobby();
   assert.equal(room.phase, 'lobby');
   assert.equal(room.players.get(ana).score, 0);
+});
+
+test('con teoría activada, unas pocas rondas son de verdadero o falso', (t) => {
+  const room = setup(t);
+  const ana = room.join('Ana', null, 's1').playerId;
+  room.setConfig({ rounds: 10, theory: true });
+  room.start();
+
+  const textos = new Set();
+  for (let i = 0; i < 10; i++) {
+    const view = room.playerView(ana).round;
+    if (view.theory) {
+      assert.ok(i > 0);
+      assert.equal(view.a, undefined);
+      textos.add(view.text);
+    } else {
+      assert.equal(view.a.length, view.b.length);
+    }
+    room.answer(ana, room.round.same);
+    if (view.theory) assert.ok(room.playerView(ana).result.explain);
+    room.next();
+  }
+  assert.equal(textos.size, 2);
+  assert.equal(room.phase, 'final');
+  assert.ok(room.players.get(ana).score >= 10 * 500);
 });

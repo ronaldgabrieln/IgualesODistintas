@@ -11,6 +11,7 @@
     difficulty: [
       ['progresiva', 'Progresiva'], ['facil', 'Fácil'], ['medio', 'Medio'], ['dificil', 'Difícil'],
     ],
+    theory: [[false, 'No'], [true, 'Sí']],
   };
   const MUESTRA = [0, 3, 5, 1, 6];
 
@@ -40,7 +41,8 @@
     if (!boton) return;
     const { accion, campo, valor } = boton.dataset;
     if (accion === 'config') {
-      socket.emit('host:config', { [campo]: campo === 'rounds' ? Number(valor) : valor });
+      const convertir = { rounds: Number, theory: (v) => v === 'true' };
+      socket.emit('host:config', { [campo]: convertir[campo] ? convertir[campo](valor) : valor });
     } else if (accion === 'nueva') {
       Util.guardar(CLAVE_SESION, null);
       location.reload();
@@ -75,6 +77,7 @@
     reloj.detener();
     const s = estado;
     app.innerHTML = `
+    <p>Proyecto por elina elena y ronald</p>
       <section class="lobby">
         <div class="lobby__unirse tarjeta">
           <p class="tenue">Entra desde tu teléfono en</p>
@@ -97,6 +100,10 @@
                 <div id="muestra-personas"></div><span>Personas</span>
               </button>
             </div>
+          </div>
+          <div class="ajuste">
+            <h2>Preguntas de teoría (unas pocas, de verdadero o falso)</h2>
+            <div class="segmentos">${segmentos('theory')}</div>
           </div>
           <h2 id="cuenta"></h2>
           <div class="jugadores" id="jugadores"></div>
@@ -136,13 +143,14 @@
       </header>
       <div class="tiempo"><div id="tiempo-barra"></div></div>
       <section class="ronda">
+        ${s.round.theory ? `<p class="enunciado tarjeta">${esc(s.round.text)}</p>` : `
         <div class="duelo">
           <figure><div id="c1"></div><figcaption>1</figcaption></figure>
           <figure><div id="c2"></div><figcaption>2</figcaption></figure>
-        </div>
+        </div>`}
         <div class="ronda__panel" id="panel"></div>
       </section>`;
-    circulos = [
+    circulos = s.round.theory ? null : [
       Circulo.crear(document.getElementById('c1'), s.round.a, { modo: s.config.mode }),
       Circulo.crear(document.getElementById('c2'), s.round.b, {
         modo: s.config.mode,
@@ -158,14 +166,14 @@
       if (s.phase === 'question') {
         reloj.iniciar(s.round.remainingMs, s.round.duration);
         document.getElementById('panel').innerHTML = `
-          <h1>¿Iguales o distintas?</h1>
+          <h1>${s.round.theory ? '¿Verdadero o falso?' : '¿Iguales o distintas?'}</h1>
           <p class="tiempo-num" id="tiempo-num"></p>
           <p class="tenue" id="respondieron"></p>
           <button class="boton" data-accion="reveal">Revelar ya</button>`;
       } else {
         reloj.detener();
         document.getElementById('tiempo-barra').style.width = '0%';
-        Circulo.revelar(circulos[0], circulos[1], s.round.a, s.round.b);
+        if (circulos) Circulo.revelar(circulos[0], circulos[1], s.round.a, s.round.b);
         pintarRevelacion();
       }
     }
@@ -187,7 +195,8 @@
 
   function pintarRevelacion() {
     const s = estado;
-    const { same, kind, counts } = s.reveal;
+    const { same, kind, explain, counts } = s.reveal;
+    const [si, no] = Util.opciones(s.round.theory);
     const total = counts.iguales + counts.distintas + counts.nada;
     const ultima = s.roundIndex + 1 >= s.totalRounds;
     const lideres = s.players
@@ -195,11 +204,11 @@
       .map((p, i) => `<li><span>${i + 1}.º ${esc(p.name)}</span><span>${p.score}</span></li>`)
       .join('');
     document.getElementById('panel').innerHTML = `
-      <h1 class="veredicto">${same ? 'Iguales' : 'Distintas'}</h1>
-      <p>${esc(Util.explicacion(same, kind))}</p>
+      <h1 class="veredicto">${same ? si : no}</h1>
+      <p>${esc(explain || Util.explicacion(same, kind))}</p>
       <div class="conteos">
-        ${barra('Iguales', counts.iguales, total, same)}
-        ${barra('Distintas', counts.distintas, total, !same)}
+        ${barra(si, counts.iguales, total, same)}
+        ${barra(no, counts.distintas, total, !same)}
         ${barra('Sin respuesta', counts.nada, total, false)}
       </div>
       <ol class="lista">${lideres}</ol>
@@ -228,6 +237,9 @@
         <div class="podio">${escalon(segundo, 2)}${escalon(primero, 1)}${escalon(tercero, 3)}</div>
         ${resto ? `<ol class="lista lista--columnas">${resto}</ol>` : ''}
         <button class="boton boton--principal" data-accion="lobby">Jugar otra vez</button>
+        <p class="referencia tenue">Referencia: Rosen, K. H. (2004). <em>Matemática discreta y sus
+          aplicaciones</em> (5.ª ed.). McGraw-Hill. Cap. 4, «Combinatoria» (permutaciones y
+          principio de multiplicación).</p>
       </section>`;
   }
 })();

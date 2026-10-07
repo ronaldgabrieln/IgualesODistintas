@@ -9,7 +9,8 @@ Juego multijugador de aula sobre permutación circular. El docente proyecta la p
 3. Elige el número de rondas, la dificultad y cómo se ven los círculos:
    - **Colores**: un anillo dividido en sectores de colores.
    - **Personas**: una mesa redonda con asientos e iniciales.
-4. Pulsa **Empezar**. Cada ronda termina cuando todos responden o se acaba el tiempo; después el círculo 2 gira hasta alinearse con el 1 y se ve si coinciden.
+4. Opcional: activa **Preguntas de teoría** para que unas pocas rondas (1, 2 o 3 según el total) sean afirmaciones de verdadero o falso sobre permutación circular.
+5. Pulsa **Empezar**. Cada ronda termina cuando todos responden o se acaba el tiempo; después el círculo 2 gira hasta alinearse con el 1 y se ve si coinciden.
 
 Puntuación: 500 puntos por acertar, hasta 500 más por rapidez y 100 extra desde el tercer acierto seguido.
 
@@ -54,5 +55,10 @@ npm run carga -- http://localhost:3000 40    # simula 40 jugadores contra un ser
 - `server.js`: servidor Express y eventos de Socket.IO.
 - `src/circular.js`: comparación de arreglos circulares (forma canónica).
 - `src/rounds.js`: generación de rondas y niveles.
+- `src/theory.js`: banco de preguntas de teoría y su reparto en la partida.
 - `src/rooms.js`: salas, jugadores, fases de la partida y puntuación.
 - `public/`: pantalla del anfitrión (`host.html`), del jugador (`index.html`) y el dibujo de los círculos (`js/table.js`).
+
+## Referencia
+
+Rosen, K. H. (2004). *Matemática discreta y sus aplicaciones* (5.ª ed.). McGraw-Hill. Cap. 4, "Combinatoria" (permutaciones y principio de multiplicación).

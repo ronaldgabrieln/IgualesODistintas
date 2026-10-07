@@ -2,6 +2,7 @@
 
 const crypto = require('node:crypto');
 const { generateRound, levelForRound, DIFFICULTIES } = require('./rounds');
+const { planTheory } = require('./theory');
 
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
 const CODE_LENGTH = 4;
@@ -22,7 +23,8 @@ class Room {
     this.hostId = crypto.randomUUID();
     this.hostSocketId = null;
     this.phase = 'lobby';
-    this.config = { rounds: 10, difficulty: 'progresiva', mode: 'colores' };
+    this.config = { rounds: 10, difficulty: 'progresiva', mode: 'colores', theory: false };
+    this.theory = new Map();
     this.players = new Map();
     this.roundIndex = -1;
     this.round = null;
@@ -42,6 +44,7 @@ class Room {
     if (ROUND_OPTIONS.includes(partial.rounds)) this.config.rounds = partial.rounds;
     if (DIFFICULTIES.includes(partial.difficulty)) this.config.difficulty = partial.difficulty;
     if (MODES.includes(partial.mode)) this.config.mode = partial.mode;
+    if (typeof partial.theory === 'boolean') this.config.theory = partial.theory;
     this.changed();
   }
 
@@ -94,6 +97,7 @@ class Room {
       p.streak = 0;
     }
     this.roundIndex = -1;
+    this.theory = this.config.theory ? planTheory(this.config.rounds) : new Map();
     this.beginRound();
   }
 
@@ -101,7 +105,7 @@ class Room {
     this.roundIndex += 1;
     const level = levelForRound(this.config.difficulty, this.roundIndex, this.config.rounds);
     const now = Date.now();
-    const round = generateRound(level);
+    const round = this.theory.get(this.roundIndex) || generateRound(level);
     this.round = { ...round, startedAt: now, endsAt: now + round.time * 1000 };
     this.counts = null;
     for (const p of this.players.values()) {
@@ -199,18 +203,22 @@ class Room {
   // La respuesta correcta no viaja en esta vista: solo lo necesario para dibujar.
   roundView() {
     if (!this.round) return null;
-    return {
-      a: this.round.a,
-      b: this.round.b,
-      tilt: this.round.tilt,
+    const timing = {
       duration: this.round.time * 1000,
       remainingMs: Math.max(0, this.round.endsAt - Date.now()),
     };
+    if (this.round.theory) return { theory: true, text: this.round.text, ...timing };
+    return { a: this.round.a, b: this.round.b, tilt: this.round.tilt, ...timing };
   }
 
   revealView() {
     if (this.phase !== 'reveal') return null;
-    return { same: this.round.same, kind: this.round.kind, counts: this.counts };
+    return {
+      same: this.round.same,
+      kind: this.round.kind,
+      explain: this.round.explain || null,
+      counts: this.counts,
+    };
   }
 
   hostView() {
@@ -249,7 +257,13 @@ class Room {
       round: this.roundView(),
       answer: player.answer,
       result: reveal && player.last
-        ? { ...player.last, same: reveal.same, kind: reveal.kind, streak: player.streak }
+        ? {
+          ...player.last,
+          same: reveal.same,
+          kind: reveal.kind,
+          explain: reveal.explain,
+          streak: player.streak,
+        }
         : null,
       podium: this.phase === 'final'
         ? ranking.slice(0, 3).map((p) => ({ name: p.name, score: p.score }))
