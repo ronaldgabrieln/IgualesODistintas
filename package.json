@@ -1,0 +1,23 @@
+{
+  "name": "iguales-o-distintas",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Juego multijugador de aula sobre permutación circular",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test",
+    "carga": "node scripts/carga.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "qrcode": "^1.5.4",
+    "socket.io": "^4.8.4"
+  },
+  "devDependencies": {
+    "socket.io-client": "^4.8.4"
+  }
+}
